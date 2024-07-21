@@ -1,0 +1,111 @@
+package com.example.database;
+import android.os.Bundle;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
+import io.realm.RealmResults;
+
+public class MainActivity extends AppCompatActivity {
+    
+    TextView resultsTextView;
+    Realm realm;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        // Initialize Realm
+        Realm.init(this);
+        Realm realm = Realm.getDefaultInstance();
+        RealmConfiguration config = new RealmConfiguration.Builder()
+                .name("myrealm.realm")
+                .schemaVersion(1)
+                .allowWritesOnUiThread(true)
+                .build();
+        Realm.setDefaultConfiguration(config);
+
+
+
+
+
+    }
+
+//add data
+    private void addUser(String name, int age) {
+        realm.executeTransaction(r -> {
+            User user = r.createObject(User.class, name);
+            user.setAge(age);
+        });
+    }
+    ////////////////////////////////////////////
+//update data
+    private void updateUser(String name, int newAge) {
+        realm.executeTransaction(r -> {
+            User user = r.where(User.class).equalTo("name", name).findFirst();
+            if (user != null) {
+                user.setAge(newAge);
+            }
+        });
+    }
+
+
+/////////////////////////////////////////////////////////
+//          remove data
+    private void removeUser(String name) {
+        realm.executeTransaction(r -> {
+            User user = r.where(User.class).equalTo("name", name).findFirst();
+            if (user != null) {
+                user.deleteFromRealm();
+            }
+        });
+    }
+///////////////////////////////////////////
+//read data
+
+    private void readUsers() {
+        RealmResults<User> users = realm.where(User.class).findAll();
+        StringBuilder results = new StringBuilder();
+        for (User user : users) {
+            results.append("Name: ").append(user.getName()).append(", Age: ").append(user.getAge()).append("\n");
+        }
+        resultsTextView.setText(results.toString());
+    }
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
